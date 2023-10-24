@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-
+import WeatherItems from './WeatherItems';
 
 const Weather = () => {
-    const [location, setLocation] = useState('');
+    const [location, setLocation] = useState('Kathmandu');
     const [weatherData, setWeatherData] = useState(null);
     const [error, setError] = useState(null);
 
@@ -15,23 +15,22 @@ const Weather = () => {
         }
     }, [location]);
 
-    const fetchWeatherData = () => {
+    const fetchWeatherData = async () => {
         const apiKey = "393709fbf1e14b5890b122151232310";
         const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=no`;
 
-        fetch(apiUrl)
+        await fetch(apiUrl)
             .then((response) => response.json())
             .then((data) => {
                 setWeatherData({
                     location: data.location.name,
                     country: data.location.country,
-                    locationTime: data.location.locationTime,
                     temperature: `${data.current.temp_c}°C`,
                     description: data.current.condition.text,
                     icon: data.current.condition.icon,
                     wind: data.current.wind_kph,
                     last_updated: data.current.last_updated,
-                    wind_dir: data.current.wind_dir
+                    wind_dir: data.current.wind_dir,
                 });
             })
             .catch((error) => {
@@ -41,8 +40,8 @@ const Weather = () => {
     };
 
     return (
-        <div className="container  flex items-center justify-center mt-3 bg-blue-100">
-            <div className="bg-white p-4  rounded-md shadow-md w-full max-w-md">
+        <div className="container flex items-center justify-center mt-3 bg-blue-100">
+            <div className="bg-white p-4 rounded-md shadow-md w-full max-w-md">
                 <h2 className="text-2xl font-semibold text-gray-800">Weather App</h2>
                 <div className="mt-4">
                     <input
@@ -61,16 +60,16 @@ const Weather = () => {
                 </div>
 
                 {weatherData && !error && (
-                    <div className="mt-4">
-                        <h3 className="text-xl font-semibold">{weatherData.location}</h3>
-                        <p className="text-gray-700">{weatherData.country}</p>
-                        <p className="text-gray-700">{weatherData.temperature}</p>
-                        <p className="text-gray-700">{weatherData.description}</p>
-                        <img src={weatherData.icon} alt={weatherData.description} className="mx-auto" />
-                        <p className="text-gray-700">{weatherData.wind}</p>
-                        <p className="text-gray-700">{weatherData.last_updated}</p>
-                        <p className="text-gray-700">{weatherData.wind_dir}</p>
-                    </div>
+                    <WeatherItems
+                        location={weatherData.location}
+                        country={weatherData.country}
+                        temperature={weatherData.temperature}
+                        description={weatherData.description}
+                        icon={weatherData.icon}
+                        wind={weatherData.wind}
+                        last_updated={weatherData.last_updated}
+                        wind_dir={weatherData.wind_dir}
+                    />
                 )}
 
                 {error && <p className="text-red-500 mt-4">{error}</p>}
