@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import WeatherItems from './WeatherItems';
+import PropTypes from 'prop-types';
 
 const Weather = () => {
-    const [location, setLocation] = useState('Kathmandu');
+    const [location, setLocation] = useState('');
     const [weatherData, setWeatherData] = useState(null);
     const [error, setError] = useState(null);
 
@@ -15,34 +16,42 @@ const Weather = () => {
         }
     }, [location]);
 
-    const fetchWeatherData = async () => {
-        const apiKey = "393709fbf1e14b5890b122151232310";
-        const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=no`;
 
-        await fetch(apiUrl)
-            .then((response) => response.json())
-            .then((data) => {
-                setWeatherData({
-                    location: data.location.name,
-                    country: data.location.country,
-                    temperature: `${data.current.temp_c}°C`,
-                    description: data.current.condition.text,
-                    icon: data.current.condition.icon,
-                    wind: data.current.wind_kph,
-                    last_updated: data.current.last_updated,
-                    wind_dir: data.current.wind_dir,
-                });
-            })
-            .catch((error) => {
-                setError('Error fetching weather data. Please check your location.');
-                console.error('Error fetching weather data:', error);
-            });
+    const fetchWeatherData = async () => {
+        try {
+            const apiKey = import.meta.env.VITE_API_KEY;
+            const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=no`;
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                throw new Error('Failed to fetch weather data');
+            }
+            const data = await response.json();
+            const currentData = data.current;
+            const locationData = data.location;
+
+            const weatherData = {
+                location: locationData.name,
+                country: locationData.country,
+                temperature: `${currentData.temp_c}°C`,
+                description: currentData.condition.text,
+                icon: currentData.condition.icon,
+                wind: currentData.wind_kph,
+                last_updated: currentData.last_updated,
+                wind_dir: currentData.wind_dir,
+                locationTime: locationData.localtime,
+            };
+
+            setWeatherData(weatherData);
+        } catch (error) {
+            setError('Error fetching weather data. Please check your location.');
+            console.error('Error fetching weather data:', error);
+        }
     };
 
     return (
         <div className="container flex items-center justify-center mt-3 bg-blue-100">
             <div className="bg-white p-4 rounded-md shadow-md w-full max-w-md">
-                <h2 className="text-2xl font-semibold text-gray-800">Weather App</h2>
+                <h2 className="text-2xl font-semibold text-gray-800 text-center">Weather App</h2>
                 <div className="mt-4">
                     <input
                         type="text"
@@ -69,6 +78,7 @@ const Weather = () => {
                         wind={weatherData.wind}
                         last_updated={weatherData.last_updated}
                         wind_dir={weatherData.wind_dir}
+                        locationTime={weatherData.locationTime}
                     />
                 )}
 
@@ -77,5 +87,15 @@ const Weather = () => {
         </div>
     );
 };
-
+WeatherItems.propTypes = {
+    location: PropTypes.string,
+    country: PropTypes.string,
+    locationTime: PropTypes.string,
+    temperature: PropTypes.string,
+    description: PropTypes.string,
+    icon: PropTypes.string,
+    wind: PropTypes.string,
+    last_updated: PropTypes.string,
+    wind_dir: PropTypes.string,
+};
 export default Weather;

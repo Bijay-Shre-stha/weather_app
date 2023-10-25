@@ -1,5 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter&family=Merriweather:ital,wght@1,700&family=Playpen+Sans:wght@300&family=Poppins:wght@200;300;500&display=swap');
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Playpen Sans', cursive;
   font-weight: 500;
   color: rgba(0, 0, 0, 0.87);
   background-color: rgb(219 234 254)
